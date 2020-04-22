@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey":"ResourcePrefix",
+    "ParameterValue": "JenkinsHost"
+  },
+  {
+    "ParameterKey":"ProjectName",
+    "ParameterValue": "Cloud-DevOps-Capstone-Project"
+  },
+  {
+    "ParameterKey": "VpcCIDR",
+    "ParameterValue": "10.0.0.0/16"
+  },
+  {
+    "ParameterKey": "JenkinsSubnet",
+    "ParameterValue": "10.0.0.0/24"
+  }
+]

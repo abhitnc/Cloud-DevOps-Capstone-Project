@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey":"ProjectName",
+    "ParameterValue": "Cloud-DevOps-Capstone-Project"
+  },
+  {
+    "ParameterKey":"PemKeyName",
+    "ParameterValue": "jenkins-host"
+  },
+  {
+    "ParameterKey":"JenkinsRole",
+    "ParameterValue": "JenkinsCICDRole"
+  },
+  {
+    "ParameterKey": "ImageID",
+    "ParameterValue": "ami-0e2ff28bfb72a4e45"
+  },
+  {
+    "ParameterKey":"Type",
+    "ParameterValue": "t2.micro"
+  }
+]

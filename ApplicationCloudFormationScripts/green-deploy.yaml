@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ducks-production
+spec:
+  selector:
+    matchLabels:
+      app: green-ducks
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: green-ducks
+    spec:
+      containers:
+        - name: green-ducks
+          image: {github_username}/duckhunt:latest
+          ports:
+            - containerPort: 80

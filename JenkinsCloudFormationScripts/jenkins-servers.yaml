@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: This is the setup for the Capstone Project Jenkins Host
+Parameters:
+
+  ProjectName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+
+  PemKeyName:
+    Description: Name of the Key name that is required for SSH
+    Type: String
+
+  JenkinsRole:
+    Description: Name of the IAM role that is applied to the Jenkins Host
+    Type: String
+
+  ImageID:
+    Description: Name ID of the EC2 image for the server
+    Type: String
+    Default: ami-0e2ff28bfb72a4e45  # this AMI ID may not be available. Find the base Amazon image.
+
+  Type:
+    Description: The type of EC2 instance
+    Type: String
+    Default: t2.micro
+
+
+Resources:
+  WebServerSecGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Allow http to our hosts and SSH for all servers only
+      VpcId:
+        Fn::ImportValue:
+          !Sub "${ProjectName}-CI-CD-Pipeline"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName} Jekins Sec Group
+        - Key: ProjectName
+          Value: !Ref ProjectName
+        - Key: StudentName
+          Value: !Ref StudentName
+
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref JenkinsRole
+
+  JenkinsHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageID
+      InstanceType: !Ref Type
+      KeyName: !Ref PemKeyName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum remove -y java-1.7.0-openjdk
+          sudo yum install -y java-1.8.0
+          sudo yum update –y
+          sudo yum install docker -y
+          sudo yum install git -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+          sudo rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+          sudo yum install jenkins -y
+          sudo usermod -a -G docker jenkins
+          sudo gpasswd -a jenkins docker
+          pip install awscli --upgrade
+          curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-04-22/bin/linux/amd64/kubectl
+          openssl sha1 -sha256 kubectl
+          sudo chmod +x ./kubectl
+          sudo mv ./kubectl /usr/bin
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/bin
+          curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-04-22/bin/linux/amd64/aws-iam-authenticator
+          sudo chmod +x ./aws-iam-authenticator
+          sudo mv ./aws-iam-authenticator /usr/bin/
+          sudo service docker start
+          sudo service jenkins start
+          chkconfig jenkins on
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          SubnetId:
+            Fn::ImportValue:
+              !Sub "${ProjectName}-JENKINS-SN"
+          GroupSet:
+            - Ref: WebServerSecGroup
+      IamInstanceProfile:
+        Ref: ProfileWithRolesForOurApp
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName} Jenkins Host
+        - Key: ProjectName
+          Value: !Ref ProjectName
+        - Key: StudentName
+          Value: !Ref StudentName
+Outputs:
+  JenkinsHostURL:
+    Description: The Jenkins AWS URL
+    Value: !Join ["", ["http://", !GetAtt JenkinsHost.PublicDnsName,":8080"]]
+    Export:
+      Name: !Sub ${ProjectName}-HOST-NAME
+  JenkinsHostIP:
+    Description: The Jenkins AWS IP
+    Value: !Join ["", ["http://", !GetAtt JenkinsHost.PublicIp]]
+    Export:
+      Name: !Sub ${ProjectName}-IP
