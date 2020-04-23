@@ -52,8 +52,6 @@ Resources:
           Value: !Sub ${ProjectName} Jekins Sec Group
         - Key: ProjectName
           Value: !Ref ProjectName
-        - Key: StudentName
-          Value: !Ref StudentName
 
   ProfileWithRolesForOurApp:
     Type: AWS::IAM::InstanceProfile
@@ -108,8 +106,6 @@ Resources:
           Value: !Sub ${ProjectName} Jenkins Host
         - Key: ProjectName
           Value: !Ref ProjectName
-        - Key: StudentName
-          Value: !Ref StudentName
 Outputs:
   JenkinsHostURL:
     Description: The Jenkins AWS URL

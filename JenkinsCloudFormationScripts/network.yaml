@@ -27,8 +27,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref ResourcePrefix
-        - Key: StudentName
-          Value: !Ref StudentName
         - Key: ProjectName
           Value: !Ref ProjectName
   InternetGateway:
@@ -39,8 +37,6 @@ Resources:
           Value: !Ref ResourcePrefix
         - Key: ProjectName
           Value: !Ref ProjectName
-        - Key: StudentName
-          Value: !Ref StudentName
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -60,8 +56,6 @@ Resources:
           Value: !Sub ${ResourcePrefix} Subnet (AZ1)
         - Key: ProjectName
           Value: !Ref ProjectName
-        - Key: StudentName
-          Value: !Ref StudentName
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -72,8 +66,6 @@ Resources:
           Value: !Sub ${ProjectName} Public Routes
         - Key: ProjectName
           Value: !Ref ProjectName
-        - Key: StudentName
-          Value: !Ref StudentName
 
   DefaultPublicRoute:
     Type: AWS::EC2::Route
